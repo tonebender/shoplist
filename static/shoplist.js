@@ -9,9 +9,10 @@ const shoplist = (function () {
         RED = 4;
 
     class Item {
-        constructor(id, text = '', amount = 1, state = BLACK) {
+        constructor(id, text = '', category = 'ovrigt', amount = 1, state = BLACK) {
             this.id = id;
             this.text = text;
+            this.category = category;
             this.amount = amount;
             this.state = state;
         }
@@ -21,44 +22,47 @@ const shoplist = (function () {
 
         list: {
             date: new Date().toLocaleString('sv-SE'),
-            cats: {
-                mejeri: {
-                    title: 'Mejeri',
-                    items: [
-                        new Item(0, 'Mjölk')
-                    ]
-                },
-                gronsaker: {
-                    title: 'Grönsaker',
-                    items: []
-                }
+            items: [
+                new Item(0, 'Mjölk', 'mejeri'),
+                new Item(1, 'Gurka', 'gronsaker')
+            ],
+            categories: {
+                brod: 'Bröd',
+                frukt: 'Frukt',
+                frys: 'Frys',
+                gronsaker: 'Grönsaker',
+                husgerad: 'Husgeråd',
+                hygien: 'Hygien',
+                kottfisk: 'Kött och fisk',
+                mejeri: 'Mejeri',
+                ovrigt: 'Övrigt',
+                snacks: 'Snacks och godis',
+                torrvaror: 'Torrvaror',
             }
         },
 
-        lastId: 0,
+        lastId: 1,
 
-        addItem: function (category, text) {
-            model.list.cats[category].items.push(new Item(++lastId, text));
+        addItem: function (text, category) {
+            model.list.items.push(new Item(++lastId, text, category));
         },
 
-        replaceItem: function (category, id, newItem) {
-            model.list.cats[category].items = model.list.cats[category].items.map(item =>
+        replaceItem: function (id, newItem) {
+            model.list.items = model.list.items.map(item =>
                 item.id === id ? newItem : item
             );
         },
 
-        removeItem: function (category, id) {
-            model.list.cats[category].items = model.list.cats[category].items.filter(item => item.id != id);
+        removeItem: function (id) {
+            model.list.items = model.list.items.filter(item => item.id != id);
         },
 
         removeAll: function () {
-            for (let key in model.list.cats) {
-                model.list.cats[key].items = [];
-            }
+            model.list.items = [];
         },
 
-        setItemState: function (category, id, state) {
-            model.list.cats[category].items = model.list.cats[category].items.map(item =>
+        setItemState: function (id, state) {
+            model.list.items = model.list.items.map(item =>
                 item.id === id ? new Item(id = item.id, state = state) : item
             );
         }
@@ -77,31 +81,38 @@ const shoplist = (function () {
                 );
         },
 
-        createCategoryElem: function (category) {
-            const cat = document.createElement('div');
-            return cat;
+        createCategoryElem: function (categoryKey) {
+            const catLi = document.createElement('li');
+            catLi.setAttribute('id', '#category_' + categoryKey);
+            catLi.textContent = model.list.categories[categoryKey];
+            const catUl = document.createElement('ul');
+            catLi.append(catUl);
+            return catLi;
         },
 
-        createItemElem: function (id) {
-            const item = document.createElement('div'),
+        createItemElem: function (id, value, amountValue) {
+            const item = document.createElement('li'),
                 text = document.createElement('input'),
                 amount = document.createElement('input');
             item.setAttribute('id', id);
-            view.setAttributes(text, {type: 'text', id: 'text_' + id, name: 'text_' + id});
-            view.setAttributes(amount, {type: 'text', id: 'amount_' + id, name: 'amount_' + id});
+            view.setAttributes(text, {type: 'text', id: id + '_text', name: id + '_text', value: value});
+            view.setAttributes(amount, {type: 'text', id: id + '_amount', name: id + '_amount', value: amountValue});
             item.append(text);
             item.append(amount);
             return item;
         },
 
         renderList: function () {
-            for (let key in model.list.cats) {
-                const cat = view.createCategoryElem(model.list.cats[key].title);
-                for (const i of model.list.cats[key].items) {
-                    const item = view.createItemElem(i.id);
-                    cat.append(item);
+            let categoryElem;
+            for (const i of model.list.items) {
+                const item = view.createItemElem(i.id, i.text, i.amount);
+                categoryElem = document.querySelector('#category_' + i.category);
+                if (!categoryElem) {
+                    categoryElem = view.createCategoryElem(i.category);
+                    view.sl.append(categoryElem);
                 }
-                view.sl.append(cat);
+                categoryUl = categoryElem.querySelector('ul');
+                categoryUl.append(item);
             }
         }
     },
