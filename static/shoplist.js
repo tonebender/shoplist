@@ -65,6 +65,25 @@ const shoplist = (function () {
             model.list.items = model.list.items.map(item =>
                 item.id === id ? new Item(id = item.id, state = state) : item
             );
+        },
+
+        loadList: function () {
+            const xhr = new XMLHttpRequest();
+            xhr.addEventListener('load', function () {
+                console.log(this.responseText);
+            });
+            xhr.open('POST', '/load/test.json');
+            xhr.send();
+        },
+
+        saveList: function () {
+            const xhr = new XMLHttpRequest();
+            xhr.addEventListener('load', function () {
+                console.log(this.responseText);
+            });
+            xhr.open('POST', '/save/test.json');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(model.list));
         }
     },
 

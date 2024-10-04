@@ -16,7 +16,7 @@ def indexpage():
 @app.route('/save/<name>', methods=['POST'])
 def save_shoplist(name):
     content = request.get_json()
-    return 'You entered ' + secure_filename(name) + '.json'
+    return 'You entered ' + secure_filename(name) + '.json, and posted ' + str(content)
 
 
 if __name__ == '__main__':
