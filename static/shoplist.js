@@ -72,7 +72,7 @@ const shoplist = (function () {
             xhr.addEventListener('load', function () {
                 console.log(this.responseText);
             });
-            xhr.open('POST', '/load/test.json');
+            xhr.open('GET', '/load/test');
             xhr.send();
         },
 
@@ -81,7 +81,7 @@ const shoplist = (function () {
             xhr.addEventListener('load', function () {
                 console.log(this.responseText);
             });
-            xhr.open('POST', '/save/test.json');
+            xhr.open('POST', '/save/test');
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify(model.list));
         }
