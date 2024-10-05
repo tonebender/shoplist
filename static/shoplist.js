@@ -70,7 +70,17 @@ const shoplist = (function () {
         loadList: function () {
             const xhr = new XMLHttpRequest();
             xhr.addEventListener('load', function () {
-                console.log(this.responseText);
+                if (this.status === 200) {
+                    const payload = JSON.parse(this.responseText);
+                    if (payload.hasOwnProperty('error')) {
+                        console.log('Error', payload.error);
+                    } else {
+                        console.log('No error');
+                        console.log(payload);
+                    }
+                } else {
+                    console.log('Error', this.status);
+                }
             });
             xhr.open('GET', '/load/test');
             xhr.send();
@@ -79,7 +89,9 @@ const shoplist = (function () {
         saveList: function () {
             const xhr = new XMLHttpRequest();
             xhr.addEventListener('load', function () {
-                console.log(this.responseText);
+                if (xhr.status === 200) {
+                    console.log(this.responseText);
+                }
             });
             xhr.open('POST', '/save/test');
             xhr.setRequestHeader('Content-Type', 'application/json');
@@ -137,10 +149,19 @@ const shoplist = (function () {
     },
 
     controller = {
+
+        init: function () {
+            console.log('Initializing');
+        }
+
     };
 
     return {
         m: model,
-        v: view
+        v: view,
+        c: controller,
+        init: controller.init
     };
 })();
+
+window.addEventListener('DOMContentLoaded', shoplist.init);

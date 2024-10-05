@@ -16,16 +16,24 @@ def indexpage():
 
 @app.route('/load/<name>', methods=['GET'])
 def load_shoplist(name):
-    with open(app.config['SAVEDIR'] + secure_filename(name) + '.json', mode='r', encoding='utf-8') as f:
-        content = f.read()
+    filename = app.config['SAVEDIR'] + secure_filename(name) + '.json'
+    try:
+        with open(filename, mode='r', encoding='utf-8') as f:
+            content = f.read()
+    except OSError as e:
+        return json.loads(f'{{"error": "{e}"}}')
     return json.loads(content)
 
 
 @app.route('/save/<name>', methods=['POST'])
 def save_shoplist(name):
     content = request.get_json()
-    with open(app.config['SAVEDIR'] + secure_filename(name) + '.json', mode='w', encoding='utf-8') as f:
-        f.write(json.dumps(content))
+    filename = app.config['SAVEDIR'] + secure_filename(name) + '.json'
+    try:
+        with open(filename, mode='w', encoding='utf-8') as f:
+            f.write(json.dumps(content))
+    except OSError as e:
+        return json.loads(f'{{"error": "{e}"}}')
     return 'Wrote json to file.'
 
 
