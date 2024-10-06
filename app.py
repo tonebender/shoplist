@@ -10,8 +10,9 @@ app.config.update(SAVEDIR='lists/')
 
 
 @app.route('/')
-def indexpage():
-    return render_template('index.html')
+@app.route('/<name>')
+def indexpage(name=''):
+    return render_template('index.html', name=name)
 
 
 @app.route('/load/<name>', methods=['GET'])

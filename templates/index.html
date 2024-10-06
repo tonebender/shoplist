@@ -8,9 +8,10 @@
     </head>
     <body>
         <h1>Shoplist</h1>
-        <input id="listname" type="text" name="listname" placeholder="Name of shopping list" />
+        <input id="listname" type="text" name="listname" placeholder="Name of shopping list" value="{{ name }}" />
         <button id="loadlist" type="button">Load</button>
         <ul id="shoplist"></ul>
+        <div id="messages"></div>
         <script src="{{ url_for('static', filename='shoplist.js') }}" type="text/javascript" charset="utf-8"></script>
     </body>
 </html>

@@ -41,6 +41,8 @@ const shoplist = (function () {
             }
         },
 
+        listname: '',
+
         lastId: 1,
 
         addItem: function (text, category) {
@@ -67,22 +69,29 @@ const shoplist = (function () {
             );
         },
 
-        loadList: function () {
+        /**
+         * Load the shopping list specified in model.listname from the server
+         * backend and put the results (JSON format) in model.list.
+         *
+         * @param {function} callWhenDone - function to call after loading succeeded
+         */
+        loadList: function (callWhenDone) {
             const xhr = new XMLHttpRequest();
             xhr.addEventListener('load', function () {
                 if (this.status === 200) {
                     const payload = JSON.parse(this.responseText);
                     if (payload.hasOwnProperty('error')) {
-                        console.log('Error', payload.error);
+                        controller.log(payload.error);
                     } else {
-                        console.log('No error');
-                        console.log(payload);
+                        model.list = payload;
+                        if (callWhenDone) callWhenDone();
+                        controller.log('Loaded list: ' + model.listname);
                     }
                 } else {
                     console.log('Error', this.status);
                 }
             });
-            xhr.open('GET', '/load/test');
+            xhr.open('GET', '/load/' + model.listname);
             xhr.send();
         },
 
@@ -90,7 +99,7 @@ const shoplist = (function () {
             const xhr = new XMLHttpRequest();
             xhr.addEventListener('load', function () {
                 if (xhr.status === 200) {
-                    console.log(this.responseText);
+                    controller.log(this.responseText);
                 }
             });
             xhr.open('POST', '/save/test');
@@ -100,7 +109,15 @@ const shoplist = (function () {
     },
 
     view = {
-        sl: document.querySelector('#shoplist'),
+
+        /**
+         * Load all the needed DOM elements into variables. Should be run at start.
+         */
+        getDOMElements: function () {
+            view.sl = document.querySelector('#shoplist');
+            view.listname = document.querySelector('#listname');
+            view.messages = document.querySelector('#messages');
+        },
 
         setAttributes: function (el, attrs) {
             Object.keys(attrs)
@@ -121,6 +138,14 @@ const shoplist = (function () {
             return catLi;
         },
 
+        /**
+         * Create a shopping list element.
+         *
+         * @param {string} id - the element's id attribute
+         * @param {string} value - the element's value attribute
+         * @param {string} amountValue - the value of the amount input box
+         * @returns {object} the HTML element
+         */
         createItemElem: function (id, value, amountValue) {
             const item = document.createElement('li'),
                 text = document.createElement('input'),
@@ -133,6 +158,9 @@ const shoplist = (function () {
             return item;
         },
 
+        /**
+         * Show the shopping list on the page.
+         */
         renderList: function () {
             let categoryElem;
             for (const i of model.list.items) {
@@ -146,12 +174,28 @@ const shoplist = (function () {
                 categoryUl.append(item);
             }
         }
+
     },
 
     controller = {
 
+        /**
+         * Initialize this JS app: set DOM element variables, load a shoplist, etc.
+         * This should be run when the DOM is ready after page load.
+         */
         init: function () {
-            console.log('Initializing');
+            view.getDOMElements();
+            model.listname = view.listname.value;
+            if (model.listname) model.loadList(view.renderList);
+        },
+
+        /**
+         * Print a message on the messages (log) element on the page.
+         *
+         * @param {string} message - The message to print
+         */
+        log: function (message) {
+            view.messages.textContent = message;
         }
 
     };
