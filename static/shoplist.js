@@ -20,26 +20,7 @@ const shoplist = (function () {
 
     const model = {
 
-        list: {
-            date: new Date().toLocaleString('sv-SE'),
-            items: [
-                new Item(0, 'Mjölk', 'mejeri'),
-                new Item(1, 'Gurka', 'gronsaker')
-            ],
-            categories: {
-                brod: 'Bröd',
-                frukt: 'Frukt',
-                frys: 'Frys',
-                gronsaker: 'Grönsaker',
-                husgerad: 'Husgeråd',
-                hygien: 'Hygien',
-                kottfisk: 'Kött och fisk',
-                mejeri: 'Mejeri',
-                ovrigt: 'Övrigt',
-                snacks: 'Snacks och godis',
-                torrvaror: 'Torrvaror',
-            }
-        },
+        list: {},
 
         listname: '',
 
@@ -69,11 +50,16 @@ const shoplist = (function () {
             );
         },
 
+        updateListTime: function () {
+            model.list.time = new Date().toLocaleString('sv-SE');
+        },
+
         /**
          * Load the shopping list specified in model.listname from the server
-         * backend and put the results (JSON format) in model.list.
+         * backend and give the results (JSON format) as parameter to the callWhenDone callback.
          *
-         * @param {function} callWhenDone - function to call after loading succeeded
+         * @param {function} callWhenDone - function to call after loading succeeded.
+         * Should take one argument which will be the responseText from the request.
          */
         loadList: function (callWhenDone) {
             const xhr = new XMLHttpRequest();
@@ -83,12 +69,10 @@ const shoplist = (function () {
                     if (payload.hasOwnProperty('error')) {
                         controller.log(payload.error);
                     } else {
-                        model.list = payload;
-                        if (callWhenDone) callWhenDone();
-                        controller.log('Loaded list: ' + model.listname);
+                        if (callWhenDone) callWhenDone(payload);
                     }
                 } else {
-                    console.log('Error', this.status);
+                    controller.log('Error: ' + this.status);
                 }
             });
             xhr.open('GET', '/load/' + model.listname);
@@ -102,9 +86,22 @@ const shoplist = (function () {
                     controller.log(this.responseText);
                 }
             });
-            xhr.open('POST', '/save/test');
+            xhr.open('POST', '/save/' + model.listname);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify(model.list));
+        },
+
+        /**
+         * Run callback if model.list is newer than the list of same name saved on the server.
+         */
+        doIfNewer: function (callback) {
+            model.loadList(function (serverList) {
+                const d1 = new Date(model.list.time);
+                const d2 = new Date(serverList.time);
+                if (d1.getTime() > d2.getTime()) {
+                    callback();
+                }
+            });
         }
     },
 
@@ -186,7 +183,10 @@ const shoplist = (function () {
         init: function () {
             view.getDOMElements();
             model.listname = view.listname.value;
-            if (model.listname) model.loadList(view.renderList);
+            if (model.listname) model.loadList(function (loaded) {
+                model.list = loaded;
+                view.renderList();
+            });
         },
 
         /**
