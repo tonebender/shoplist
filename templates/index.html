@@ -9,8 +9,15 @@
     <body>
         <h1>Shoplist</h1>
         <input id="listname" type="text" name="listname" placeholder="Name of shopping list" value="{{ name }}" />
-        <button id="loadlist" type="button">Load</button>
+        <button id="btnLoadList" type="button">Load</button>
         <ul id="shoplist"></ul>
+        <button id="btnNewItem" type="button">+</button>
+        <div id="dialogNewItem">
+            Add new item
+            <input id="newItemText" type="text" name="newItemText" placeholder="Item" />
+            <input id="newItemAmount" type="text" name"newItemAmount" placeholder="Amount" />
+            <button id="btnNewItemAdd" type="button">Add</button>
+        </div>
         <div id="messages"></div>
         <script src="{{ url_for('static', filename='shoplist.js') }}" type="text/javascript" charset="utf-8"></script>
     </body>
