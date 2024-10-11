@@ -31,32 +31,37 @@ const shoplist = (function () {
         lastId: 1,
 
         addItem: function (text, category, amount) {
-            model.list.items.push(new Item(++(model.lastId), text, category, amount));
-            return model.list.items.slice(-1)[0];
+            this.list.items.push(new Item(++(model.lastId), text, category, amount));
+            return this.list.items.slice(-1)[0];
         },
 
         replaceItem: function (id, newItem) {
-            model.list.items = model.list.items.map(item =>
+            this.list.items = this.list.items.map(item =>
                 item.id === id ? newItem : item
             );
         },
 
         removeItem: function (id) {
-            model.list.items = model.list.items.filter(item => item.id != id);
+            this.list.items = this.list.items.filter(item => item.id != id);
         },
 
         removeAll: function () {
-            model.list.items = [];
+            this.list.items = [];
         },
 
         setItemState: function (id, state) {
-            model.list.items = model.list.items.map(item =>
+            this.list.items = this.list.items.map(item =>
                 item.id === id ? new Item(id = item.id, state = state) : item
             );
         },
 
         updateListTime: function () {
-            model.list.time = new Date().toLocaleString('sv-SE');
+            this.list.time = new Date().toLocaleString('sv-SE');
+        },
+
+        categoryLookup: function (categoryText) {
+            return Object.keys(this.list.categories)
+                .filter(key => this.list.categories[key] === categoryText).pop();
         },
 
         /**
@@ -145,26 +150,13 @@ const shoplist = (function () {
                     model.saveToServer(model.list);  // TODO: Add callback
                 }
             });
-        },
-
-        /**
-         * Run callback if model.list is newer than the list of same name saved on the server.
-         */
-        doIfNewer: function (callback) {
-            model.loadFromServer(function (serverList) {
-                const d1 = new Date(model.list.time);
-                const d2 = new Date(serverList.time);
-                if (d1.getTime() > d2.getTime()) {
-                    callback();
-                }
-            });
         }
     },
 
     view = {
 
         /**
-         * Load all the needed DOM elements into variables. Should be run at start.
+         * Load the needed DOM elements into properties here in view.
          */
         getDOMElements: function () {
             const elements = [
@@ -174,22 +166,21 @@ const shoplist = (function () {
                 'btnNewItem',
                 'dialogNewItem',
                 'newItemText',
+                'newItemCategory',
                 'newItemAmount',
                 'btnNewItemAdd'
             ];
             elements.map(elemID => {
                 view[elemID] = document.querySelector('#' + elemID);
             });
-            /*
-            view.sl = document.querySelector('#shoplist');
-            view.listname = document.querySelector('#listname');
-            view.messages = document.querySelector('#messages');
-            view.btnNewItem = document.querySelector('#btnNewItem');
-            view.dialogNewItem = document.querySelector('#dialogNewItem');
-            view.btnNewItemAdd = document.querySelector('#btnNewItemAdd');
-            */
         },
 
+        /**
+         * Set several attributes at once on a DOM element.
+         *
+         * @param {object} el - the HTML element
+         * @param {object} attrs - an object with key-value pairs for all the attributes to set
+         */
         setAttrs: function (el, attrs) {
             Object.keys(attrs)
                 .filter(key => el[key] !== undefined)
@@ -200,6 +191,12 @@ const shoplist = (function () {
                 );
         },
 
+        /**
+         * Create a category DOM element.
+         *
+         * @param {string} categoryKey - the variable name of the category (key in key-value)
+         * @returns {object} the category LI element which contains a UL for its items
+         */
         createCategory: function (categoryKey) {
             const catLi = document.createElement('li');
             catLi.setAttribute('id', 'category_' + categoryKey);
@@ -210,14 +207,14 @@ const shoplist = (function () {
         },
 
         /**
-         * Create a shopping list element.
+         * Create a shopping list DOM element.
          *
          * @param {string} id - the element's id attribute
          * @param {string} value - the element's value attribute
          * @param {string} amountValue - the value of the amount input box
          * @returns {object} the HTML element
          */
-        // TODO: Maybe change func params to a single item object param?
+        // TODO: Maybe change params to a single item object param?
         createItem: function (id, value, amountValue) {
             id = 'item_' + id;
             const item = document.createElement('li'),
@@ -261,7 +258,7 @@ const shoplist = (function () {
         },
 
         /**
-         * Remove the item element from the list.
+         * Remove item element from the DOM.
          *
          * @param {string} id - the ID of the item to remove
          */
@@ -269,6 +266,14 @@ const shoplist = (function () {
             const item = document.querySelector('#item_' + id);
             item.remove();
             // TODO: Check if category is now empty and remove it if so
+        },
+
+        setItemEvents: function (i, iElem) {
+            const btnDel = iElem.querySelector('#item_' + i.id + '_del');
+            btnDel.addEventListener('click', () => {
+                model.removeItem(i.id);
+                view.removeItem(i.id);
+            });
         },
 
         /**
@@ -299,17 +304,18 @@ const shoplist = (function () {
 
         setEvents: function () {
             view.btnNewItem.addEventListener('click', view.showNewItemDialog);
-            view.btnNewItemAdd.addEventListener('click', controller.addNewItem);
+            view.btnNewItemAdd.addEventListener('click', () => {
+                controller.addNewItem(view.newItemText.value, model.categoryLookup(view.newItemCategory.value), Number(view.newItemAmount.value));
+            });
         },
 
-        addNewItem: function () {
-            const i = model.addItem(view.newItemText.value, undefined, Number(view.newItemAmount.value));
+        /**
+         * Add new item to list, in both model and view.
+         */
+        addNewItem: function (text, category, amount) {
+            const i = model.addItem(text, category, amount);
             const iElem = view.renderItem(i);
-            const btnDel = iElem.querySelector('#item_' + i.id + '_del');
-            btnDel.addEventListener('click', () => {
-                model.removeItem(i.id);
-                view.removeItem(i.id);
-            });
+            view.setItemEvents(i, iElem);
         },
 
         /**
