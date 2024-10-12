@@ -15,6 +15,20 @@ const shoplist = (function () {
             this.category = category;
             this.amount = amount;
             this.state = state;
+            this.elem = undefined;
+        }
+
+        render () {
+            this.elem = view.renderItem(this);
+        }
+
+        setEvents () {
+            const btnDel = this.elem.querySelector('#item_' + this.id + '_del');
+            const _this = this;
+            btnDel.addEventListener('click', () => {
+                model.removeItem(_this.id);
+                view.removeItem(_this.id);
+            });
         }
     }
 
@@ -269,11 +283,6 @@ const shoplist = (function () {
         },
 
         setItemEvents: function (i, iElem) {
-            const btnDel = iElem.querySelector('#item_' + i.id + '_del');
-            btnDel.addEventListener('click', () => {
-                model.removeItem(i.id);
-                view.removeItem(i.id);
-            });
         },
 
         /**
@@ -313,9 +322,12 @@ const shoplist = (function () {
          * Add new item to list, in both model and view.
          */
         addNewItem: function (text, category, amount) {
+            // TODO: Maybe break out the "new Item" stuff from model.addItem and just let
+            // the latter be a function to put in a pre-made item with.
             const i = model.addItem(text, category, amount);
-            const iElem = view.renderItem(i);
-            view.setItemEvents(i, iElem);
+            i.render();
+            i.setEvents();
+            //view.setItemEvents(i, iElem);
         },
 
         /**
