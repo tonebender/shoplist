@@ -9,26 +9,22 @@ const shoplist = (function () {
         RED = 4;
 
     class Item {
-        constructor(id, text = '', category = 'ovrigt', amount = 1, state = BLACK) {
-            this.id = id;
+        constructor(text = '', category = 'ovrigt', amount = 1, state = BLACK) {
+            this.id = this._createRandomId();
             this.text = text;
             this.category = category;
             this.amount = amount;
             this.state = state;
-            this.elem = undefined;
         }
 
-        render () {
-            this.elem = view.renderItem(this);
+        /**
+         * Return a 6-character string with random chars from [0-9a-z]
+         */
+        _createRandomId () {
+            return (Math.random().toString(36)+'00000000000000000').slice(2, 8);
         }
 
-        setEvents () {
-            const btnDel = this.elem.querySelector('#item_' + this.id + '_del');
-            const _this = this;
-            btnDel.addEventListener('click', () => {
-                model.removeItem(_this.id);
-                view.removeItem(_this.id);
-            });
+        setEvents (callbacks) {
         }
     }
 
@@ -42,10 +38,8 @@ const shoplist = (function () {
 
         listname: '',
 
-        lastId: 1,
-
         addItem: function (text, category, amount) {
-            this.list.items.push(new Item(++(model.lastId), text, category, amount));
+            this.list.items.push(new Item(text, category, amount));
             return this.list.items.slice(-1)[0];
         },
 
@@ -209,9 +203,10 @@ const shoplist = (function () {
          * Create a category DOM element.
          *
          * @param {string} categoryKey - the variable name of the category (key in key-value)
+         * @param {string} categoryValue - the actual category text (value in key-value)
          * @returns {object} the category LI element which contains a UL for its items
          */
-        createCategory: function (categoryKey) {
+        createCategory: function (categoryKey, categoryValue) {
             const catLi = document.createElement('li');
             catLi.setAttribute('id', 'category_' + categoryKey);
             catLi.textContent = model.list.categories[categoryKey];
@@ -249,8 +244,10 @@ const shoplist = (function () {
         /**
          * Show the shopping list on the page.
          */
-        renderList: function () {
-            model.list.items.map(item => view.renderItem(item));
+        // TODO: Burn this function and just do the map call directly in controller,
+        // using each item's built-in .render()
+        renderList: function (list) {
+            list.items.map(item => view.renderItem(item));
         },
 
         /**
@@ -260,15 +257,15 @@ const shoplist = (function () {
          * @param {object} i - the item object (from model.list.items) to render
          */
         renderItem: function (i) {
-            const item = view.createItem(i.id, i.text, i.amount);
+            const itemElem = view.createItem(i.id, i.text, i.amount);
             let categoryElem = document.querySelector('#category_' + i.category);
             if (!categoryElem) {
                 categoryElem = view.createCategory(i.category);
                 view.shoplist.append(categoryElem);
             }
             categoryUl = categoryElem.querySelector('ul');
-            categoryUl.append(item);
-            return item;
+            categoryUl.append(itemElem);
+            return itemElem;
         },
 
         /**
@@ -282,7 +279,12 @@ const shoplist = (function () {
             // TODO: Check if category is now empty and remove it if so
         },
 
-        setItemEvents: function (i, iElem) {
+        setItemEvents: function (i, iElem, callbacks) {
+            // TODO: Eliminate iElem and use i in querySelector
+            const btnDel = iElem.querySelector('#item_' + i.id + '_del');
+            btnDel.addEventListener('click', callbacks.del.bind(i));
+            const btnGreen = iElem.querySelector('#item_' + i.id + '_green');
+            btnGreen.addEventListener('click', callbacks.green);
         },
 
         /**
@@ -307,7 +309,7 @@ const shoplist = (function () {
             if (model.listname) model.loadFromServer(function (payload) {
                 model.listFromServer = payload;
                 model.list = structuredClone(model.listFromServer);
-                view.renderList();
+                view.renderList(model.list);
             });
         },
 
@@ -322,12 +324,15 @@ const shoplist = (function () {
          * Add new item to list, in both model and view.
          */
         addNewItem: function (text, category, amount) {
-            // TODO: Maybe break out the "new Item" stuff from model.addItem and just let
-            // the latter be a function to put in a pre-made item with.
-            const i = model.addItem(text, category, amount);
-            i.render();
-            i.setEvents();
-            //view.setItemEvents(i, iElem);
+            const item = model.addItem(text, category, amount);
+            const itemElem = view.renderItem(item);
+            const callbacks = {
+                del: function () {
+                    model.removeItem(this.id);
+                    view.removeItem(this.id);
+                }
+            };
+            view.setItemEvents(item, itemElem, callbacks);
         },
 
         /**
