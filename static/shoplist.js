@@ -9,7 +9,7 @@ const shoplist = (function () {
         RED = 4;
 
     class Item {
-        constructor(text = '', category = 'ovrigt', amount = 1, state = BLACK) {
+        constructor(text = '', category = 'Övrigt', amount = 1, state = BLACK) {
             this.id = this._createRandomId();
             this.text = text;
             this.category = category;
@@ -18,13 +18,11 @@ const shoplist = (function () {
         }
 
         /**
-         * Return a 6-character string with random chars from [0-9a-z]
+         * Return a 6-character string with 'i' + random chars from [0-9a-z]
+         * (a non-number is needed at beginning because html IDs cannot start with nums)
          */
         _createRandomId () {
-            return (Math.random().toString(36)+'00000000000000000').slice(2, 8);
-        }
-
-        setEvents (callbacks) {
+            return 'i' + (Math.random().toString(36)+'00000000000000000').slice(2, 7);
         }
     }
 
@@ -38,38 +36,32 @@ const shoplist = (function () {
 
         listname: '',
 
+        // TODO: Remove ID from the Item objects and only use them as property keys;
+        // move _createRandomId to here. And eliminate all cases of item.id everywhere.
         addItem: function (text, category, amount) {
-            this.list.items.push(new Item(text, category, amount));
-            return this.list.items.slice(-1)[0];
+            const item = new Item(text, category, amount);
+            this.list.items[item.id] = item;
+            return this.list.items[item.id];
         },
 
         replaceItem: function (id, newItem) {
-            this.list.items = this.list.items.map(item =>
-                item.id === id ? newItem : item
-            );
+            this.list.items[id] = newItem;
         },
 
         removeItem: function (id) {
-            this.list.items = this.list.items.filter(item => item.id != id);
+            delete this.list.items[id];
         },
 
         removeAll: function () {
-            this.list.items = [];
+            this.list.items = {};
         },
 
         setItemState: function (id, state) {
-            this.list.items = this.list.items.map(item =>
-                item.id === id ? new Item(id = item.id, state = state) : item
-            );
+            this.list.items[id].state = state;
         },
 
         updateListTime: function () {
             this.list.time = new Date().toLocaleString('sv-SE');
-        },
-
-        categoryLookup: function (categoryText) {
-            return Object.keys(this.list.categories)
-                .filter(key => this.list.categories[key] === categoryText).pop();
         },
 
         /**
@@ -206,10 +198,10 @@ const shoplist = (function () {
          * @param {string} categoryValue - the actual category text (value in key-value)
          * @returns {object} the category LI element which contains a UL for its items
          */
-        createCategory: function (categoryKey, categoryValue) {
+        createCategory: function (category) {
             const catLi = document.createElement('li');
-            catLi.setAttribute('id', 'category_' + categoryKey);
-            catLi.textContent = model.list.categories[categoryKey];
+            catLi.setAttribute('id', 'category_' + category);
+            catLi.textContent = category;
             const catUl = document.createElement('ul');
             catLi.append(catUl);
             return catLi;
@@ -225,7 +217,6 @@ const shoplist = (function () {
          */
         // TODO: Maybe change params to a single item object param?
         createItem: function (id, value, amountValue) {
-            id = 'item_' + id;
             const item = document.createElement('li'),
                 text = document.createElement('input'),
                 amount = document.createElement('input'),
@@ -239,15 +230,6 @@ const shoplist = (function () {
             item.append(text);
             item.append(amount);
             return item;
-        },
-
-        /**
-         * Show the shopping list on the page.
-         */
-        // TODO: Burn this function and just do the map call directly in controller,
-        // using each item's built-in .render()
-        renderList: function (list) {
-            list.items.map(item => view.renderItem(item));
         },
 
         /**
@@ -274,17 +256,17 @@ const shoplist = (function () {
          * @param {string} id - the ID of the item to remove
          */
         removeItem: function (id) {
-            const item = document.querySelector('#item_' + id);
+            const item = document.querySelector('#' + id);
             item.remove();
             // TODO: Check if category is now empty and remove it if so
         },
 
-        setItemEvents: function (i, iElem, callbacks) {
-            // TODO: Eliminate iElem and use i in querySelector
-            const btnDel = iElem.querySelector('#item_' + i.id + '_del');
-            btnDel.addEventListener('click', callbacks.del.bind(i));
-            const btnGreen = iElem.querySelector('#item_' + i.id + '_green');
-            btnGreen.addEventListener('click', callbacks.green);
+        setItemEvents: function (iElem, callbacks) {
+            // TODO: Eliminate iElem and use id in querySelector?
+            const btnDel = iElem.querySelector('#' + iElem.id + '_del');
+            btnDel.addEventListener('click', callbacks.del.bind(iElem));
+            const btnGreen = iElem.querySelector('#' + iElem.id + '_green');
+            btnGreen.addEventListener('click', callbacks.green.bind(iElem));
         },
 
         /**
@@ -309,14 +291,14 @@ const shoplist = (function () {
             if (model.listname) model.loadFromServer(function (payload) {
                 model.listFromServer = payload;
                 model.list = structuredClone(model.listFromServer);
-                view.renderList(model.list);
+                Object.values(model.list.items).forEach(i => view.renderItem(i));
             });
         },
 
         setEvents: function () {
             view.btnNewItem.addEventListener('click', view.showNewItemDialog);
             view.btnNewItemAdd.addEventListener('click', () => {
-                controller.addNewItem(view.newItemText.value, model.categoryLookup(view.newItemCategory.value), Number(view.newItemAmount.value));
+                controller.addNewItem(view.newItemText.value, view.newItemCategory.value, Number(view.newItemAmount.value));
             });
         },
 
@@ -330,9 +312,18 @@ const shoplist = (function () {
                 del: function () {
                     model.removeItem(this.id);
                     view.removeItem(this.id);
+                },
+                green: function () {
+                    console.log('Set this to green:', this);
+                },
+                yellow: function () {
+                },
+                red: function () {
+                },
+                grey: function () {
                 }
             };
-            view.setItemEvents(item, itemElem, callbacks);
+            view.setItemEvents(itemElem, callbacks);
         },
 
         /**
