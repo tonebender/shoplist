@@ -2,11 +2,13 @@
 
 const shoplist = (function () {
 
-    const GREY = 0,
-        BLACK = 1,
-        GREEN = 2,
-        YELLOW = 3,
-        RED = 4;
+    const STATES = {
+        grey: 0,
+        black: 1,
+        green: 2,
+        yellow: 3,
+        red: 4
+    };
 
     class Item {
         constructor(text = '', category = 'Övrigt', amount = 1, state = BLACK) {
@@ -57,7 +59,7 @@ const shoplist = (function () {
         },
 
         setItemState: function (id, state) {
-            this.list.items[id].state = state;
+            if (STATES.hasOwnProperty(state)) this.list.items[id].state = state;
         },
 
         updateListTime: function () {
@@ -215,7 +217,6 @@ const shoplist = (function () {
          * @param {string} amountValue - the value of the amount input box
          * @returns {object} the HTML element
          */
-        // TODO: Maybe change params to a single item object param?
         createItem: function (id, value, amountValue) {
             const item = document.createElement('li'),
                 text = document.createElement('input'),
