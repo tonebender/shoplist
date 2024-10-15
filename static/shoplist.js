@@ -11,7 +11,7 @@ const shoplist = (function () {
     };
 
     class Item {
-        constructor(text = '', category = 'Övrigt', amount = 1, state = BLACK) {
+        constructor(text = '', category = 'Övrigt', amount = 1, state = STATES.black) {
             this.id = this._createRandomId();
             this.text = text;
             this.category = category;
@@ -46,10 +46,6 @@ const shoplist = (function () {
             return this.list.items[item.id];
         },
 
-        replaceItem: function (id, newItem) {
-            this.list.items[id] = newItem;
-        },
-
         removeItem: function (id) {
             delete this.list.items[id];
         },
@@ -59,7 +55,7 @@ const shoplist = (function () {
         },
 
         setItemState: function (id, state) {
-            if (STATES.hasOwnProperty(state)) this.list.items[id].state = state;
+            this.list.items[id].state = state;
         },
 
         updateListTime: function () {
@@ -221,13 +217,29 @@ const shoplist = (function () {
             const item = document.createElement('li'),
                 text = document.createElement('input'),
                 amount = document.createElement('input'),
-                btnItemDel = document.createElement('button');
+                btnItemDel = document.createElement('button'),
+                btnItemGreen = document.createElement('button'),
+                btnItemRed = document.createElement('button'),
+                btnItemYellow = document.createElement('button'),
+                btnItemGrey = document.createElement('button');
             item.setAttribute('id', id);
             view.setAttrs(text, {type: 'text', id: id + '_text', name: id + '_text', value: value});
             view.setAttrs(amount, {type: 'text', id: id + '_amount', name: id + '_amount', value: amountValue});
             view.setAttrs(btnItemDel, {type: 'button', id: id + '_del'});
+            view.setAttrs(btnItemGreen, {type: 'button', id: id + '_green'});
+            view.setAttrs(btnItemRed, {type: 'button', id: id + '_red'});
+            view.setAttrs(btnItemYellow, {type: 'button', id: id + '_yellow'});
+            view.setAttrs(btnItemGrey, {type: 'button', id: id + '_grey'});
             btnItemDel.textContent = 'X';
+            btnItemGreen.textContent =
+            btnItemRed.textContent =
+            btnItemYellow.textContent =
+            btnItemGrey.textContent = 'O';
             item.append(btnItemDel);
+            item.append(btnItemGreen);
+            item.append(btnItemRed);
+            item.append(btnItemYellow);
+            item.append(btnItemGrey);
             item.append(text);
             item.append(amount);
             return item;
@@ -263,11 +275,15 @@ const shoplist = (function () {
         },
 
         setItemEvents: function (iElem, callbacks) {
-            // TODO: Eliminate iElem and use id in querySelector?
-            const btnDel = iElem.querySelector('#' + iElem.id + '_del');
-            btnDel.addEventListener('click', callbacks.del.bind(iElem));
-            const btnGreen = iElem.querySelector('#' + iElem.id + '_green');
-            btnGreen.addEventListener('click', callbacks.green.bind(iElem));
+            for (const x of ['del', 'green', 'yellow', 'red', 'grey']) {
+                const btn = iElem.querySelector('#' + iElem.id + '_' + x);
+                btn.addEventListener('click', callbacks[x].bind(iElem));
+            }
+        },
+
+        setItemState: function (iElem, state) {
+            iElem.classList.remove('green', 'yellow', 'red', 'grey');
+            iElem.classList.add(state);
         },
 
         /**
@@ -292,10 +308,16 @@ const shoplist = (function () {
             if (model.listname) model.loadFromServer(function (payload) {
                 model.listFromServer = payload;
                 model.list = structuredClone(model.listFromServer);
-                Object.values(model.list.items).forEach(i => view.renderItem(i));
+                Object.values(model.list.items).forEach(item => {
+                    const iElem = view.renderItem(item);
+                    view.setItemEvents(iElem, controller.itemCallbacks);
+                });
             });
         },
 
+        /**
+         * Set click events on the static elements on page.
+         */
         setEvents: function () {
             view.btnNewItem.addEventListener('click', view.showNewItemDialog);
             view.btnNewItemAdd.addEventListener('click', () => {
@@ -304,27 +326,43 @@ const shoplist = (function () {
         },
 
         /**
-         * Add new item to list, in both model and view.
+         * Create a new item and add it both in model and view.
+         *
+         * @param {string} text - the item text that was entered
+         * @param {string} category - the item category that was entered
+         * @param {string} amount - the item amount that was entered
          */
         addNewItem: function (text, category, amount) {
             const item = model.addItem(text, category, amount);
             const itemElem = view.renderItem(item);
-            const callbacks = {
-                del: function () {
-                    model.removeItem(this.id);
-                    view.removeItem(this.id);
-                },
-                green: function () {
-                    console.log('Set this to green:', this);
-                },
-                yellow: function () {
-                },
-                red: function () {
-                },
-                grey: function () {
-                }
-            };
-            view.setItemEvents(itemElem, callbacks);
+            view.setItemEvents(itemElem, controller.itemCallbacks);
+        },
+
+        // Functions that are called when click events fire on items,
+        // e.g. when clicking button to make an item red.
+        // 'this' has to refer to the item DOM element in each function.
+        itemCallbacks: {
+            del: function () {
+                model.removeItem(this.id);
+                view.removeItem(this.id);
+            },
+            green: function () {
+                console.log('setting to green');
+                model.setItemState(this.id, STATES.green);
+                view.setItemState(this, 'green');
+            },
+            yellow: function () {
+                model.setItemState(this.id, STATES.yellow);
+                view.setItemState(this, 'yellow');
+            },
+            red: function () {
+                model.setItemState(this.id, STATES.red);
+                view.setItemState(this, 'red');
+            },
+            grey: function () {
+                model.setItemState(this.id, STATES.grey);
+                view.setItemState(this, 'grey');
+            }
         },
 
         /**
