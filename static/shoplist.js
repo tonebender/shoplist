@@ -54,8 +54,13 @@ const shoplist = (function () {
             this.list.items = {};
         },
 
+        // TODO: Change these set functions to setters in the Item class?
         setItemState: function (id, state) {
             this.list.items[id].state = state;
+        },
+
+        setItemCategory: function (id, category) {
+            this.list.items[id].category = category;
         },
 
         updateListTime: function () {
@@ -208,12 +213,20 @@ const shoplist = (function () {
          * @param {string} categoryValue - the actual category text (value in key-value)
          * @returns {object} the category LI element which contains a UL for its items
          */
-        createCategory: function (category) {
+        createCategory: function (category, dropCallback) {
             const catLi = document.createElement('li');
-            catLi.setAttribute('id', 'category_' + category);
+            catLi.setAttribute('id', category);
+            catLi.classList.add('category');
             catLi.textContent = category;
             const catUl = document.createElement('ul');
             catLi.append(catUl);
+            catLi.addEventListener('dragenter', e => { e.preventDefault(); });
+            catLi.addEventListener('dragover', e => { e.preventDefault(); });
+            catLi.addEventListener('drop', e => {
+                const id = e.dataTransfer.getData('text/plain');
+                const dragged = document.getElementById(id);
+                catUl.appendChild(dragged);
+            });
             return catLi;
         },
 
@@ -225,7 +238,7 @@ const shoplist = (function () {
          * @param {string} amountValue - the value of the amount input box
          * @returns {object} the HTML element
          */
-        createItem: function (id, value, amountValue) {
+        _createItem: function (id, value, amountValue) {
             const item = document.createElement('li'),
                 text = document.createElement('input'),
                 amount = document.createElement('input'),
@@ -234,9 +247,9 @@ const shoplist = (function () {
                 btnItemRed = document.createElement('button'),
                 btnItemYellow = document.createElement('button'),
                 btnItemGrey = document.createElement('button');
-            item.setAttribute('id', id);
-            view.setAttrs(text, {type: 'text', id: id + '_text', name: id + '_text', value: value});
-            view.setAttrs(amount, {type: 'text', id: id + '_amount', name: id + '_amount', value: amountValue});
+            view.setAttrs(item, {id: id, draggable: 'true'});
+            view.setAttrs(text, {type: 'text', id: id + '_text', value: value});
+            view.setAttrs(amount, {type: 'text', id: id + '_amount', value: amountValue});
             view.setAttrs(btnItemDel, {type: 'button', id: id + '_del'});
             view.setAttrs(btnItemGreen, {type: 'button', id: id + '_green'});
             view.setAttrs(btnItemRed, {type: 'button', id: id + '_red'});
@@ -249,8 +262,8 @@ const shoplist = (function () {
             btnItemGrey.textContent = 'O';
             item.append(btnItemDel);
             item.append(btnItemGreen);
-            item.append(btnItemRed);
             item.append(btnItemYellow);
+            item.append(btnItemRed);
             item.append(btnItemGrey);
             item.append(text);
             item.append(amount);
@@ -264,8 +277,8 @@ const shoplist = (function () {
          * @param {object} i - the item object (from model.list.items) to render
          */
         renderItem: function (i) {
-            const itemElem = view.createItem(i.id, i.text, i.amount);
-            let categoryElem = document.querySelector('#category_' + i.category);
+            const itemElem = view._createItem(i.id, i.text, i.amount);
+            let categoryElem = document.getElementById(i.category);
             if (!categoryElem) {
                 categoryElem = view.createCategory(i.category);
                 view.shoplist.append(categoryElem);
@@ -276,20 +289,24 @@ const shoplist = (function () {
         },
 
         /**
-         * Remove item element from the DOM.
+         * Remove element from the DOM (not only list items).
          *
-         * @param {string} id - the ID of the item to remove
+         * @param {string} id - the ID of the elem to remove
          */
         removeElem: function (id) {
             const elem = document.querySelector('#' + id);
             elem.remove();
         },
 
-        setItemEvents: function (iElem, callbacks) {
-            for (const x of ['del', 'green', 'yellow', 'red', 'grey']) {
-                const btn = iElem.querySelector('#' + iElem.id + '_' + x);
-                btn.addEventListener('click', callbacks[x].bind(iElem));
-            }
+        setItemEvents: function (iElem, btnCallbacks, dragendCallback) {
+            Object.keys(btnCallbacks).forEach(key => {
+                const btn = iElem.querySelector('#' + iElem.id + '_' + key);
+                btn.addEventListener('click', btnCallbacks[key].bind(iElem));
+            });
+            iElem.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/plain', e.target.id);
+            });
+            iElem.addEventListener('dragend', dragendCallback);
         },
 
         setItemState: function (iElem, state) {
@@ -314,14 +331,14 @@ const shoplist = (function () {
          */
         init: function () {
             view.getDOMElements();
-            controller.setEvents();
+            controller.setStaticEvents();
             model.listname = view.listname.value;
             if (model.listname) model.loadFromServer(function (payload) {
                 model.listFromServer = payload;
                 model.list = structuredClone(model.listFromServer);
                 Object.values(model.list.items).forEach(item => {
                     const iElem = view.renderItem(item);
-                    view.setItemEvents(iElem, controller.itemCallbacks);
+                    view.setItemEvents(iElem, controller.btnCallbacks, controller.dragendCallback);
                 });
             });
         },
@@ -329,7 +346,7 @@ const shoplist = (function () {
         /**
          * Set click events on the static elements on page.
          */
-        setEvents: function () {
+        setStaticEvents: function () {
             view.btnNewItem.addEventListener('click', view.showNewItemDialog);
             view.btnNewItemAdd.addEventListener('click', () => {
                 controller.addNewItem(view.newItemText.value, view.newItemCategory.value, Number(view.newItemAmount.value));
@@ -337,7 +354,8 @@ const shoplist = (function () {
         },
 
         /**
-         * Create a new item and add it both in model and view.
+         * Create a new item and add it both in model and view,
+         * adding events to it as well.
          *
          * @param {string} text - the item text that was entered
          * @param {string} category - the item category that was entered
@@ -346,20 +364,19 @@ const shoplist = (function () {
         addNewItem: function (text, category, amount) {
             const item = model.addItem(text, category, amount);
             const itemElem = view.renderItem(item);
-            view.setItemEvents(itemElem, controller.itemCallbacks);
+            view.setItemEvents(itemElem, controller.btnCallbacks, controller.dragendCallback);
         },
 
-        // Functions that are called when click events fire on items,
+        // Functions that are called when click events fire on item buttons,
         // e.g. when clicking button to make an item red.
-        // 'this' has to refer to the item DOM element in each function.
-        itemCallbacks: {
+        // 'this' has to refer to the item element (not the button).
+        btnCallbacks: {
             del: function () {
                 const category = model.list.items[this.id].category;
                 model.removeItem(this.id);
                 view.removeElem(this.id);
-                if (model.countCategorysItems(category) === 0) {
-                    view.removeElem('category_' + category);
-                }
+                if (model.countCategorysItems(category) === 0)
+                    view.removeElem(category);
             },
             green: function () {
                 model.setItemState(this.id, STATES.green);
@@ -377,6 +394,12 @@ const shoplist = (function () {
                 model.setItemState(this.id, STATES.grey);
                 view.setItemState(this, 'grey');
             }
+        },
+
+        dragendCallback: function (e) {
+            console.log('Parent node now', e.target.parentNode);
+            // FIXME: This is clunky...:
+            model.setItemCategory(e.target.id, e.target.parentNode.parentNode.id);
         },
 
         /**
