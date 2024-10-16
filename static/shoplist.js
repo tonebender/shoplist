@@ -63,6 +63,37 @@ const shoplist = (function () {
         },
 
         /**
+         * Count how many items in the list that have a certain category
+         *
+         * @param {string} cat - the category to look for in the list items
+         * @returns {number} how many items that have the category
+         */
+        countCategorysItems: function (cat) {
+            return Object.keys(this.list.items)
+                .filter(k => this.list.items[k].category === cat)
+                .length;
+        },
+
+        /**
+         * Add category to this.list.categories, if it doesn't already exist there.
+         *
+         * @param {string} cat - the category text to add
+         */
+        addCategory: function (cat) {
+            if (!this.list.categories.includes(cat)) this.list.categories.push(cat);
+        },
+
+        /**
+         * Remove the category cat from model.list.categories.
+         * This does not check if any items are using this category.
+         *
+         * @param {string} cat - the category text whose category to remove
+         */
+        removeCategory: function (cat) {
+            model.list.categories = model.list.categories.filter(c => c !== cat);
+        },
+
+        /**
          * Load the shopping list specified in model.listname from the server
          * backend and give the results (JSON format) as parameter to the callWhenDone callback.
          *
@@ -268,10 +299,9 @@ const shoplist = (function () {
          *
          * @param {string} id - the ID of the item to remove
          */
-        removeItem: function (id) {
-            const item = document.querySelector('#' + id);
-            item.remove();
-            // TODO: Check if category is now empty and remove it if so
+        removeElem: function (id) {
+            const elem = document.querySelector('#' + id);
+            elem.remove();
         },
 
         setItemEvents: function (iElem, callbacks) {
@@ -334,6 +364,7 @@ const shoplist = (function () {
          */
         addNewItem: function (text, category, amount) {
             const item = model.addItem(text, category, amount);
+            model.addCategory(category);
             const itemElem = view.renderItem(item);
             view.setItemEvents(itemElem, controller.itemCallbacks);
         },
@@ -343,11 +374,15 @@ const shoplist = (function () {
         // 'this' has to refer to the item DOM element in each function.
         itemCallbacks: {
             del: function () {
+                const category = model.list.items[this.id].category;
                 model.removeItem(this.id);
-                view.removeItem(this.id);
+                view.removeElem(this.id);
+                if (model.countCategorysItems(category) === 0) {
+                    model.removeCategory(category);
+                    view.removeElem('category_' + category);
+                }
             },
             green: function () {
-                console.log('setting to green');
                 model.setItemState(this.id, STATES.green);
                 view.setItemState(this, 'green');
             },
