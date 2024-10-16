@@ -3,18 +3,5 @@
     "items": {
         "abcdef": {"id": "abcdef", "text": "Mj\u00f6lk", "category": "Mejeri", "amount": 1, "state": 1},
         "ghijkl": {"id": "ghijkl", "text": "Gurka", "category": "Gr\u00f6nsaker", "amount": 1, "state": 1}
-    },
-    "categories": [
-        "Br\u00f6d",
-        "Frukt",
-        "Frys",
-        "Gr\u00f6nsaker",
-        "Husger\u00e5d",
-        "Hygien",
-        "K\u00f6tt och fisk",
-        "Mejeri",
-        "\u00d6vrigt",
-        "Snacks och godis",
-        "Torrvaror"
-    ]
+    }
 }

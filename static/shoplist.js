@@ -75,25 +75,6 @@ const shoplist = (function () {
         },
 
         /**
-         * Add category to this.list.categories, if it doesn't already exist there.
-         *
-         * @param {string} cat - the category text to add
-         */
-        addCategory: function (cat) {
-            if (!this.list.categories.includes(cat)) this.list.categories.push(cat);
-        },
-
-        /**
-         * Remove the category cat from model.list.categories.
-         * This does not check if any items are using this category.
-         *
-         * @param {string} cat - the category text whose category to remove
-         */
-        removeCategory: function (cat) {
-            model.list.categories = model.list.categories.filter(c => c !== cat);
-        },
-
-        /**
          * Load the shopping list specified in model.listname from the server
          * backend and give the results (JSON format) as parameter to the callWhenDone callback.
          *
@@ -364,7 +345,6 @@ const shoplist = (function () {
          */
         addNewItem: function (text, category, amount) {
             const item = model.addItem(text, category, amount);
-            model.addCategory(category);
             const itemElem = view.renderItem(item);
             view.setItemEvents(itemElem, controller.itemCallbacks);
         },
@@ -378,7 +358,6 @@ const shoplist = (function () {
                 model.removeItem(this.id);
                 view.removeElem(this.id);
                 if (model.countCategorysItems(category) === 0) {
-                    model.removeCategory(category);
                     view.removeElem('category_' + category);
                 }
             },
