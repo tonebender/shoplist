@@ -1,0 +1,6 @@
+#dialogNewItem {
+  display: none;
+}
+#dialogNewItem.shown {
+  display: block;
+}
