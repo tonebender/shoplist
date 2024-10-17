@@ -206,6 +206,11 @@ const shoplist = (function () {
                 );
         },
 
+        setTitle: function (title) {
+            const titleElem = document.querySelector('#listtitle');
+            titleElem.textContent = title;
+        },
+
         /**
          * Create a category DOM element.
          *
@@ -247,6 +252,12 @@ const shoplist = (function () {
                 btnItemRed = document.createElement('button'),
                 btnItemYellow = document.createElement('button'),
                 btnItemGrey = document.createElement('button');
+            item.className = 'item';
+            btnItemDel.classList.add('itembtn', 'del');
+            btnItemGreen.classList.add('itembtn', 'green');
+            btnItemYellow.classList.add('itembtn', 'yellow');
+            btnItemRed.classList.add('itembtn', 'red');
+            btnItemGrey.classList.add('itembtn', 'grey');
             view.setAttrs(item, {id: id, draggable: 'true'});
             view.setAttrs(text, {type: 'text', id: id + '_text', value: value});
             view.setAttrs(amount, {type: 'text', id: id + '_amount', value: amountValue});
@@ -255,11 +266,6 @@ const shoplist = (function () {
             view.setAttrs(btnItemRed, {type: 'button', id: id + '_red'});
             view.setAttrs(btnItemYellow, {type: 'button', id: id + '_yellow'});
             view.setAttrs(btnItemGrey, {type: 'button', id: id + '_grey'});
-            btnItemDel.textContent = 'X';
-            btnItemGreen.textContent =
-            btnItemRed.textContent =
-            btnItemYellow.textContent =
-            btnItemGrey.textContent = 'O';
             item.append(btnItemDel);
             item.append(btnItemGreen);
             item.append(btnItemYellow);
@@ -315,10 +321,14 @@ const shoplist = (function () {
         },
 
         /**
-         * Show the dialog to add a new shoplist item.
+         * Show/hide the dialog to add a new shoplist item.
          */
-        showNewItemDialog: function () {
+        showNewItemDialog: function (e) {
+            e.stopPropagation();
             view.dialogNewItem.classList.add('shown');
+        },
+        hideNewItemDialog: function () {
+            view.dialogNewItem.classList.remove('shown');
         }
 
     },
@@ -336,6 +346,7 @@ const shoplist = (function () {
             if (model.listname) model.loadFromServer(function (payload) {
                 model.listFromServer = payload;
                 model.list = structuredClone(model.listFromServer);
+                view.setTitle(model.listname);
                 Object.values(model.list.items).forEach(item => {
                     const iElem = view.renderItem(item);
                     view.setItemEvents(iElem, controller.btnCallbacks, controller.dragendCallback);
@@ -348,6 +359,8 @@ const shoplist = (function () {
          */
         setStaticEvents: function () {
             view.btnNewItem.addEventListener('click', view.showNewItemDialog);
+            const body = document.querySelector('body');
+            body.addEventListener('click', view.hideNewItemDialog);
             view.btnNewItemAdd.addEventListener('click', () => {
                 controller.addNewItem(view.newItemText.value, view.newItemCategory.value, Number(view.newItemAmount.value));
             });

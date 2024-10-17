@@ -1,3 +1,46 @@
+body {
+    background-color: #fffdee;
+}
+
+main {
+    max-width: 1000px;
+    margin: auto;
+    margin-top: 10px;
+    padding: 10px;
+
+    ul {
+        padding-left: 0;
+        list-style-type: none;
+
+        li {
+            display: flex;
+
+            &.category {
+                flex-direction: column;
+                border: 1px solid black;
+            }
+
+            &.item {
+                flex-direction: row;
+                align-items: center;
+
+                button {
+                    border: 0;
+                    &.green { background-color: YellowGreen; }
+                    &.red { background-color: LightCoral; }
+                    &.yellow { background-color: Gold; }
+                    &.grey { background-color: Silver; }
+                    &.itembtn {
+                        width: 20px;
+                        height: 25px;
+                        margin-right: 2px;
+                    }
+                }
+            }
+        }
+    }
+}
+
 #dialogNewItem {
     display: none;
     &.shown {
