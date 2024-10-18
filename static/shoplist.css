@@ -6,23 +6,36 @@ main {
   margin: auto;
   margin-top: 10px;
   padding: 10px;
+  border: 1px solid grey;
 }
 main ul {
   padding-left: 0;
   list-style-type: none;
+  display: flex;
+  flex-direction: column;
 }
 main ul li {
   display: flex;
 }
 main ul li.category {
   flex-direction: column;
-  border: 1px solid black;
+  margin-bottom: 12px;
+}
+main ul li.category div.categorytext {
+  background-color: Moccasin;
+  color: #420;
+  font-size: 0.8em;
+  padding-left: 4px;
+  margin-bottom: 4px;
 }
 main ul li.item {
   flex-direction: row;
   align-items: center;
+  margin-bottom: 4px;
 }
 main ul li.item button {
+  width: 20px;
+  height: 25px;
   border: 0;
 }
 main ul li.item button.green {
@@ -37,10 +50,38 @@ main ul li.item button.yellow {
 main ul li.item button.grey {
   background-color: Silver;
 }
-main ul li.item button.itembtn {
-  width: 20px;
-  height: 25px;
-  margin-right: 2px;
+main ul li.item input {
+  background-color: transparent;
+  border: 0;
+  border-bottom: 1px solid DarkGrey;
+  padding: 0;
+  padding-left: 4px;
+  height: 24px;
+}
+main ul li.item input.text {
+  flex-grow: 2;
+  margin-left: 4px;
+}
+main ul li.item input.amount {
+  width: 40px;
+}
+main ul li.item.marked input {
+  opacity: 0.7;
+}
+main ul li.item.green input {
+  background-color: YellowGreen;
+  color: #040;
+}
+main ul li.item.red input {
+  background-color: LightCoral;
+  color: #400;
+}
+main ul li.item.yellow input {
+  background-color: Gold;
+  color: #640;
+}
+main ul li.item.grey input {
+  color: #888;
 }
 #dialogNewItem {
   display: none;

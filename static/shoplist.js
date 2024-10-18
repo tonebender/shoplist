@@ -222,9 +222,13 @@ const shoplist = (function () {
             const catLi = document.createElement('li');
             catLi.setAttribute('id', category);
             catLi.classList.add('category');
-            catLi.textContent = category;
+            const catTextDiv = document.createElement('div');
+            catTextDiv.textContent = category;
+            catTextDiv.classList.add('categorytext');
+            catLi.append(catTextDiv);
             const catUl = document.createElement('ul');
             catLi.append(catUl);
+            // Events so that an item can be dragged into this category
             catLi.addEventListener('dragenter', e => { e.preventDefault(); });
             catLi.addEventListener('dragover', e => { e.preventDefault(); });
             catLi.addEventListener('drop', e => {
@@ -253,6 +257,8 @@ const shoplist = (function () {
                 btnItemYellow = document.createElement('button'),
                 btnItemGrey = document.createElement('button');
             item.className = 'item';
+            text.className = 'text';
+            amount.className = 'amount';
             btnItemDel.classList.add('itembtn', 'del');
             btnItemGreen.classList.add('itembtn', 'green');
             btnItemYellow.classList.add('itembtn', 'yellow');
@@ -316,8 +322,12 @@ const shoplist = (function () {
         },
 
         setItemState: function (iElem, state) {
-            iElem.classList.remove('green', 'yellow', 'red', 'grey');
-            iElem.classList.add(state);
+            if (iElem.classList.contains(state)) {
+                iElem.classList.remove(state, 'marked');
+            } else {
+                iElem.classList.remove('green', 'yellow', 'red', 'grey');
+                iElem.classList.add(state, 'marked');
+            }
         },
 
         /**
