@@ -272,11 +272,11 @@ const shoplist = (function () {
             view.setAttrs(btnItemRed, {type: 'button', id: id + '_red'});
             view.setAttrs(btnItemYellow, {type: 'button', id: id + '_yellow'});
             view.setAttrs(btnItemGrey, {type: 'button', id: id + '_grey'});
-            item.append(btnItemDel);
             item.append(btnItemGreen);
             item.append(btnItemYellow);
             item.append(btnItemRed);
             item.append(btnItemGrey);
+            item.append(btnItemDel);
             item.append(text);
             item.append(amount);
             return item;
