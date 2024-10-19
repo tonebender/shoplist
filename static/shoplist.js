@@ -218,7 +218,7 @@ const shoplist = (function () {
          * @param {string} categoryValue - the actual category text (value in key-value)
          * @returns {object} the category LI element which contains a UL for its items
          */
-        createCategory: function (category, dropCallback) {
+        _createCategory: function (category, dropCallback) {
             const catLi = document.createElement('li');
             catLi.setAttribute('id', category);
             catLi.classList.add('category');
@@ -240,45 +240,23 @@ const shoplist = (function () {
         },
 
         /**
-         * Create a shopping list DOM element.
+         * Create a shopping list DOM element from the (hidden) template element.
          *
-         * @param {string} id - the element's id attribute
-         * @param {string} value - the element's value attribute
+         * @param {string} id - the new item element's id attribute
+         * @param {string} value - the value attribute
          * @param {string} amountValue - the value of the amount input box
          * @returns {object} the HTML element
          */
-        _createItem: function (id, value, amountValue) {
-            const item = document.createElement('li'),
-                text = document.createElement('input'),
-                amount = document.createElement('input'),
-                btnItemDel = document.createElement('button'),
-                btnItemGreen = document.createElement('button'),
-                btnItemRed = document.createElement('button'),
-                btnItemYellow = document.createElement('button'),
-                btnItemGrey = document.createElement('button');
-            item.className = 'item';
-            text.className = 'text';
-            amount.className = 'amount';
-            btnItemDel.classList.add('itembtn', 'del');
-            btnItemGreen.classList.add('itembtn', 'green');
-            btnItemYellow.classList.add('itembtn', 'yellow');
-            btnItemRed.classList.add('itembtn', 'red');
-            btnItemGrey.classList.add('itembtn', 'grey');
-            view.setAttrs(item, {id: id, draggable: 'true'});
-            view.setAttrs(text, {type: 'text', id: id + '_text', value: value});
-            view.setAttrs(amount, {type: 'text', id: id + '_amount', value: amountValue});
-            view.setAttrs(btnItemDel, {type: 'button', id: id + '_del'});
-            view.setAttrs(btnItemGreen, {type: 'button', id: id + '_green'});
-            view.setAttrs(btnItemRed, {type: 'button', id: id + '_red'});
-            view.setAttrs(btnItemYellow, {type: 'button', id: id + '_yellow'});
-            view.setAttrs(btnItemGrey, {type: 'button', id: id + '_grey'});
-            item.append(btnItemGreen);
-            item.append(btnItemYellow);
-            item.append(btnItemRed);
-            item.append(btnItemGrey);
-            item.append(btnItemDel);
-            item.append(text);
-            item.append(amount);
+        _createItemFromTemplate: function (id, value, amountValue) {
+            const template = document.querySelector('#itemtemplate'),
+                item = template.cloneNode(true);
+            item.id = id;
+            for (const elem of item.children)  // Prepend all the '_suffix' IDs
+                elem.id = id + elem.id;
+            const text = item.querySelector('#' + id + '_text'),
+                amount = item.querySelector('#' + id + '_amount');
+            text.value = value;
+            amount.value = amountValue;
             return item;
         },
 
@@ -289,10 +267,10 @@ const shoplist = (function () {
          * @param {object} i - the item object (from model.list.items) to render
          */
         renderItem: function (i) {
-            const itemElem = view._createItem(i.id, i.text, i.amount);
+            const itemElem = view._createItemFromTemplate(i.id, i.text, i.amount);
             let categoryElem = document.getElementById(i.category);
             if (!categoryElem) {
-                categoryElem = view.createCategory(i.category);
+                categoryElem = view._createCategory(i.category);
                 view.shoplist.append(categoryElem);
             }
             categoryUl = categoryElem.querySelector('ul');
@@ -337,9 +315,14 @@ const shoplist = (function () {
             e.stopPropagation();
             view.dialogNewItem.classList.add('shown');
         },
+
         hideNewItemDialog: function () {
             view.dialogNewItem.classList.remove('shown');
-        }
+        },
+
+        createMenu: function () {
+            const save = document.createElement('li');
+        },
 
     },
 

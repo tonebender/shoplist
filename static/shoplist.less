@@ -1,96 +1,118 @@
 body {
     background-color: #fffdee;
-}
 
-main {
-    max-width: 1000px;
-    margin: auto;
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid grey;
+    main {
+        max-width: 1000px;
+        margin: auto;
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid grey;
 
-    ul {
-        padding-left: 0;
-        list-style-type: none;
-        display: flex;
-        flex-direction: column;
-
-        li {
+        header {
             display: flex;
+            flex-direction: row;
+            margin-bottom: 8px;
 
-            &.category {
-                flex-direction: column;
-                margin-bottom: 12px;
-
-                div.categorytext {
-                    background-color: Moccasin;
-                    color: #420;
-                    font-size: 0.8em;
-                    padding-left: 4px;
-                    margin-bottom: 4px;
-                }
+            h1#listtitle {
+                margin: 0;
+                flex-grow: 2;
             }
 
-            &.item {
-                flex-direction: row;
-                align-items: center;
-                margin-bottom: 4px;
+            #btnMenu {
+            }
 
-                button {
-                    width: 20px;
-                    height: 25px;
-                    border: 0;
-                    &.green { background-color: YellowGreen; }
-                    &.red { background-color: LightCoral; }
-                    &.yellow { background-color: Gold; }
-                    &.grey { background-color: Silver; }
-                }
+            #menu {
+                display: none;
+            }
+        }
 
-                input {
-                    background-color: transparent;
-                    border: 0;
-                    border-bottom: 1px solid DarkGrey;
-                    padding: 0;
-                    padding-left: 4px;
-                    height: 24px;
+        ul {
+            padding-left: 0;
+            list-style-type: none;
+            display: flex;
+            flex-direction: column;
 
-                    &.text {
-                        flex-grow: 2;
-                        margin-left: 4px;
-                    }
+            li {
+                display: flex;
 
-                    &.amount {
-                        width: 40px;
+                &.category {
+                    flex-direction: column;
+                    margin-bottom: 12px;
+
+                    div.categorytext {
+                        background-color: Moccasin;
+                        color: #420;
+                        font-size: 0.8em;
+                        padding-left: 4px;
+                        margin-bottom: 4px;
                     }
                 }
 
-                &.marked input {
-                    opacity: 0.7;
-                }
+                &.item {
+                    flex-direction: row;
+                    align-items: center;
+                    margin-bottom: 4px;
 
-                &.green input {
-                    background-color: YellowGreen;
-                    color: #040;
-                }
-                &.red input {
-                    background-color: LightCoral;
-                    color: #400;
-                }
-                &.yellow input {
-                    background-color: Gold;
-                    color: #640;
-                }
-                &.grey input {
-                    color: #888;
+                    button {
+                        width: 20px;
+                        height: 25px;
+                        border: 0;
+                        &.green { background-color: YellowGreen; }
+                        &.red { background-color: LightCoral; }
+                        &.yellow { background-color: Gold; }
+                        &.grey { background-color: Silver; }
+                    }
+
+                    input {
+                        background-color: transparent;
+                        border: 0;
+                        border-bottom: 1px solid DarkGrey;
+                        padding: 0;
+                        padding-left: 4px;
+                        height: 24px;
+
+                        &.text {
+                            flex-grow: 2;
+                            margin-left: 4px;
+                        }
+
+                        &.amount {
+                            width: 40px;
+                        }
+                    }
+
+                    &.marked input {
+                        opacity: 0.7;
+                    }
+
+                    &.green input {
+                        background-color: YellowGreen;
+                        color: #040;
+                    }
+                    &.red input {
+                        background-color: LightCoral;
+                        color: #400;
+                    }
+                    &.yellow input {
+                        background-color: Gold;
+                        color: #640;
+                    }
+                    &.grey input {
+                        color: #888;
+                    }
                 }
             }
         }
-    }
-}
 
-#dialogNewItem {
-    display: none;
-    &.shown {
-        display: block;
+        #dialogNewItem {
+            display: none;
+            &.shown {
+                display: block;
+            }
+        }
+    }
+
+    #itemtemplate {
+        display: none;
     }
 }
