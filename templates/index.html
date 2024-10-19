@@ -8,15 +8,15 @@
     </head>
     <body>
         <main>
+            <ul id="mainMenu">
+                <li id="menuLoad"><button type="button">Load</button></li>
+                <li id="menuSave"><button type="button">Save</button></li>
+                <li id="menuShowcat"><button type="button">&#x2611; Show Categories</button></li>
+                <li id="menuClearall"><button type="button">Clear All</button></li>
+            </ul>
             <header>
                 <h1 id="listtitle">Shoplist</h1>
-                <button id="btnMenu">&#9776;</button>
-                <ul id="menu">
-                    <li id="menuLoad">Load</li>
-                    <li id="menuSave">Save</li>
-                    <li id="menuShowcat">Show Categories</li>
-                    <li id="menuClearall">Clear All</li>
-                </ul>
+                <button id="btnMenu">&#x2630;</button>
             </header>
             <input id="listname" type="text" name="listname" placeholder="Name of shopping list" value="{{ name }}" />
             <button id="btnLoadList" type="button">Load</button>

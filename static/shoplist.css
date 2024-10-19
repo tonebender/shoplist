@@ -17,52 +17,58 @@ body main header h1#listtitle {
   margin: 0;
   flex-grow: 2;
 }
-body main header #menu {
-  display: none;
-}
 body main ul {
   padding-left: 0;
   list-style-type: none;
   display: flex;
   flex-direction: column;
 }
-body main ul li {
+body main ul#mainMenu {
+  display: none;
+}
+body main ul#mainMenu.shown {
+  display: block;
+}
+body main ul#shoplist.hideCategories .category .categorytext {
+  display: none;
+}
+body main ul#shoplist li {
   display: flex;
 }
-body main ul li.category {
+body main ul#shoplist li.category {
   flex-direction: column;
   margin-bottom: 12px;
 }
-body main ul li.category div.categorytext {
+body main ul#shoplist li.category div.categorytext {
   background-color: Moccasin;
   color: #420;
   font-size: 0.8em;
   padding-left: 4px;
   margin-bottom: 4px;
 }
-body main ul li.item {
+body main ul#shoplist li.item {
   flex-direction: row;
   align-items: center;
   margin-bottom: 4px;
 }
-body main ul li.item button {
+body main ul#shoplist li.item button {
   width: 20px;
   height: 25px;
   border: 0;
 }
-body main ul li.item button.green {
+body main ul#shoplist li.item button.green {
   background-color: YellowGreen;
 }
-body main ul li.item button.red {
+body main ul#shoplist li.item button.red {
   background-color: LightCoral;
 }
-body main ul li.item button.yellow {
+body main ul#shoplist li.item button.yellow {
   background-color: Gold;
 }
-body main ul li.item button.grey {
+body main ul#shoplist li.item button.grey {
   background-color: Silver;
 }
-body main ul li.item input {
+body main ul#shoplist li.item input {
   background-color: transparent;
   border: 0;
   border-bottom: 1px solid DarkGrey;
@@ -70,29 +76,29 @@ body main ul li.item input {
   padding-left: 4px;
   height: 24px;
 }
-body main ul li.item input.text {
+body main ul#shoplist li.item input.text {
   flex-grow: 2;
   margin-left: 4px;
 }
-body main ul li.item input.amount {
+body main ul#shoplist li.item input.amount {
   width: 40px;
 }
-body main ul li.item.marked input {
+body main ul#shoplist li.item.marked input {
   opacity: 0.7;
 }
-body main ul li.item.green input {
+body main ul#shoplist li.item.green input {
   background-color: YellowGreen;
   color: #040;
 }
-body main ul li.item.red input {
+body main ul#shoplist li.item.red input {
   background-color: LightCoral;
   color: #400;
 }
-body main ul li.item.yellow input {
+body main ul#shoplist li.item.yellow input {
   background-color: Gold;
   color: #640;
 }
-body main ul li.item.grey input {
+body main ul#shoplist li.item.grey input {
   color: #888;
 }
 body main #dialogNewItem {

@@ -183,7 +183,10 @@ const shoplist = (function () {
                 'newItemText',
                 'newItemCategory',
                 'newItemAmount',
-                'btnNewItemAdd'
+                'btnNewItemAdd',
+                'btnMenu',
+                'mainMenu',
+                'menuShowcat'
             ];
             elements.map(elemID => {
                 view[elemID] = document.querySelector('#' + elemID);
@@ -311,18 +314,30 @@ const shoplist = (function () {
         /**
          * Show/hide the dialog to add a new shoplist item.
          */
-        showNewItemDialog: function (e) {
+        toggleNewItemDialog: function (e) {
             e.stopPropagation();
-            view.dialogNewItem.classList.add('shown');
+            view.dialogNewItem.classList.toggle('shown');
         },
 
         hideNewItemDialog: function () {
             view.dialogNewItem.classList.remove('shown');
         },
 
-        createMenu: function () {
-            const save = document.createElement('li');
-        },
+        menu: {
+            // TODO: Re-do it as DOM elements and not an array here?
+            Menuitem: class {
+                constructor (caption, callback) {
+                    this.caption = caption;
+                    this.callback = callback;
+                }
+                setCaption (caption) {
+                }
+            },
+            items: [],
+            addItem: function (caption, callback) {
+                this.items.push(new Menuitem());
+            },
+        }
 
     },
 
@@ -351,11 +366,28 @@ const shoplist = (function () {
          * Set click events on the static elements on page.
          */
         setStaticEvents: function () {
-            view.btnNewItem.addEventListener('click', view.showNewItemDialog);
-            const body = document.querySelector('body');
-            body.addEventListener('click', view.hideNewItemDialog);
+
+            // Add New Item dialog
+            view.btnNewItem.addEventListener('click', view.toggleNewItemDialog);
+            document.body.addEventListener('click', view.hideNewItemDialog);
+            view.dialogNewItem.addEventListener('click', e => { e.stopPropagation(); });
             view.btnNewItemAdd.addEventListener('click', () => {
-                controller.addNewItem(view.newItemText.value, view.newItemCategory.value, Number(view.newItemAmount.value));
+                controller.addNewItem(view.newItemText.value,
+                    view.newItemCategory.value, Number(view.newItemAmount.value));
+                view.hideNewItemDialog();
+            });
+
+            // Main menu
+            // TODO: Redo this as a function that creates menu items (skip elem in index.html)
+            view.btnMenu.addEventListener('click', () => {
+                view.mainMenu.classList.toggle('shown');
+            });
+            view.menuShowcat.addEventListener('click', () => {
+                view.shoplist.classList.toggle('hideCategories');
+                const checkMark = view.shoplist.classList.contains('hideCategories') ?
+                    '☐' : '☑';
+                view.menuShowcat.children[0].textContent = checkMark + ' Show Categories';
+                view.mainMenu.classList.remove('shown');
             });
         },
 
@@ -403,7 +435,6 @@ const shoplist = (function () {
         },
 
         dragendCallback: function (e) {
-            console.log('Parent node now', e.target.parentNode);
             // FIXME: This is clunky...:
             model.setItemCategory(e.target.id, e.target.parentNode.parentNode.id);
         },

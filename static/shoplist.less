@@ -17,13 +17,6 @@ body {
                 margin: 0;
                 flex-grow: 2;
             }
-
-            #btnMenu {
-            }
-
-            #menu {
-                display: none;
-            }
         }
 
         ul {
@@ -32,73 +25,86 @@ body {
             display: flex;
             flex-direction: column;
 
-            li {
-                display: flex;
+            &#mainMenu {
+                display: none;
+                &.shown {
+                    display: block;
+                }
+            }
 
-                &.category {
-                    flex-direction: column;
-                    margin-bottom: 12px;
-
-                    div.categorytext {
-                        background-color: Moccasin;
-                        color: #420;
-                        font-size: 0.8em;
-                        padding-left: 4px;
-                        margin-bottom: 4px;
-                    }
+            &#shoplist {
+                &.hideCategories .category .categorytext {
+                    display: none;
                 }
 
-                &.item {
-                    flex-direction: row;
-                    align-items: center;
-                    margin-bottom: 4px;
+                li {
+                    display: flex;
 
-                    button {
-                        width: 20px;
-                        height: 25px;
-                        border: 0;
-                        &.green { background-color: YellowGreen; }
-                        &.red { background-color: LightCoral; }
-                        &.yellow { background-color: Gold; }
-                        &.grey { background-color: Silver; }
-                    }
+                    &.category {
+                        flex-direction: column;
+                        margin-bottom: 12px;
 
-                    input {
-                        background-color: transparent;
-                        border: 0;
-                        border-bottom: 1px solid DarkGrey;
-                        padding: 0;
-                        padding-left: 4px;
-                        height: 24px;
-
-                        &.text {
-                            flex-grow: 2;
-                            margin-left: 4px;
-                        }
-
-                        &.amount {
-                            width: 40px;
+                        div.categorytext {
+                            background-color: Moccasin;
+                            color: #420;
+                            font-size: 0.8em;
+                            padding-left: 4px;
+                            margin-bottom: 4px;
                         }
                     }
 
-                    &.marked input {
-                        opacity: 0.7;
-                    }
+                    &.item {
+                        flex-direction: row;
+                        align-items: center;
+                        margin-bottom: 4px;
 
-                    &.green input {
-                        background-color: YellowGreen;
-                        color: #040;
-                    }
-                    &.red input {
-                        background-color: LightCoral;
-                        color: #400;
-                    }
-                    &.yellow input {
-                        background-color: Gold;
-                        color: #640;
-                    }
-                    &.grey input {
-                        color: #888;
+                        button {
+                            width: 20px;
+                            height: 25px;
+                            border: 0;
+                            &.green { background-color: YellowGreen; }
+                            &.red { background-color: LightCoral; }
+                            &.yellow { background-color: Gold; }
+                            &.grey { background-color: Silver; }
+                        }
+
+                        input {
+                            background-color: transparent;
+                            border: 0;
+                            border-bottom: 1px solid DarkGrey;
+                            padding: 0;
+                            padding-left: 4px;
+                            height: 24px;
+
+                            &.text {
+                                flex-grow: 2;
+                                margin-left: 4px;
+                            }
+
+                            &.amount {
+                                width: 40px;
+                            }
+                        }
+
+                        &.marked input {
+                            opacity: 0.7;
+                        }
+
+                        &.green input {
+                            background-color: YellowGreen;
+                            color: #040;
+                        }
+                        &.red input {
+                            background-color: LightCoral;
+                            color: #400;
+                        }
+                        &.yellow input {
+                            background-color: Gold;
+                            color: #640;
+                        }
+                        &.grey input {
+                            color: #888;
+                        }
                     }
                 }
             }
