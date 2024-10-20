@@ -9,17 +9,15 @@
     <body>
         <main>
             <ul id="mainMenu">
-                <li id="menuLoad"><button type="button">Load</button></li>
                 <li id="menuSave"><button type="button">Save</button></li>
                 <li id="menuShowcat"><button type="button">&#x2611; Show Categories</button></li>
                 <li id="menuClearall"><button type="button">Clear All</button></li>
+                <li id="menuExit"><button type="button">Exit</button></li>
             </ul>
             <header>
-                <h1 id="listtitle">Shoplist</h1>
+                <h1 id="listname">{{ name }}</h1>
                 <button id="btnMenu">&#x2630;</button>
             </header>
-            <input id="listname" type="text" name="listname" placeholder="Name of shopping list" value="{{ name }}" />
-            <button id="btnLoadList" type="button">Load</button>
             <ul id="shoplist"></ul>
             <button id="btnNewItem" type="button">+</button>
             <div id="dialogNewItem">
@@ -36,9 +34,9 @@
             <button class="itembtn yellow" type="button" id="_yellow"></button>
             <button class="itembtn red" type="button" id="_red"></button>
             <button class="itembtn grey" type="button" id="_grey"></button>
-            <button class="itembtn del" type="button" id="_del"></button>
             <input class="text" type="text" id="_text">
             <input class="amount" type="text" id="_amount">
+            <button class="itembtn del" type="button" id="_del">&#x1f5d9;</button>
         </li>
         <script src="{{ url_for('static', filename='shoplist.js') }}" type="text/javascript" charset="utf-8"></script>
     </body>

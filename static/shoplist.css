@@ -2,7 +2,7 @@ body {
   background-color: #fffdee;
 }
 body main {
-  max-width: 1000px;
+  max-width: 600px;
   margin: auto;
   margin-top: 10px;
   padding: 10px;
@@ -13,7 +13,7 @@ body main header {
   flex-direction: row;
   margin-bottom: 8px;
 }
-body main header h1#listtitle {
+body main header h1#listname {
   margin: 0;
   flex-grow: 2;
 }
@@ -37,13 +37,13 @@ body main ul#shoplist li {
 }
 body main ul#shoplist li.category {
   flex-direction: column;
-  margin-bottom: 12px;
 }
 body main ul#shoplist li.category div.categorytext {
   background-color: Moccasin;
   color: #420;
   font-size: 0.8em;
   padding-left: 4px;
+  margin-top: 8px;
   margin-bottom: 4px;
 }
 body main ul#shoplist li.item {
@@ -67,6 +67,9 @@ body main ul#shoplist li.item button.yellow {
 }
 body main ul#shoplist li.item button.grey {
   background-color: Silver;
+}
+body main ul#shoplist li.item button.del {
+  background-color: transparent;
 }
 body main ul#shoplist li.item input {
   background-color: transparent;

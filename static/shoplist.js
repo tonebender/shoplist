@@ -209,11 +209,6 @@ const shoplist = (function () {
                 );
         },
 
-        setTitle: function (title) {
-            const titleElem = document.querySelector('#listtitle');
-            titleElem.textContent = title;
-        },
-
         /**
          * Create a category DOM element.
          *
@@ -325,6 +320,7 @@ const shoplist = (function () {
 
         menu: {
             // TODO: Re-do it as DOM elements and not an array here?
+            // Maybe we can add methods on the DOM elements? Yes!
             Menuitem: class {
                 constructor (caption, callback) {
                     this.caption = caption;
@@ -350,11 +346,10 @@ const shoplist = (function () {
         init: function () {
             view.getDOMElements();
             controller.setStaticEvents();
-            model.listname = view.listname.value;
+            model.listname = view.listname.textContent;
             if (model.listname) model.loadFromServer(function (payload) {
                 model.listFromServer = payload;
                 model.list = structuredClone(model.listFromServer);
-                view.setTitle(model.listname);
                 Object.values(model.list.items).forEach(item => {
                     const iElem = view.renderItem(item);
                     view.setItemEvents(iElem, controller.btnCallbacks, controller.dragendCallback);
